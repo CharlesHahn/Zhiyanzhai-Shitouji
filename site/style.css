@@ -1,0 +1,269 @@
+/* 脂硯齋重評石頭記 · 卷子本 */
+:root{
+  --f: 17px;
+  --rh: 17.68px;
+  --cw: 22.44px;
+  --sf: 8.84px;
+  --ls: 0.68px;
+  --mainRight: 2.72px;
+
+  --bar-h: 46px;
+  --status-h: 34px;
+
+  --bg: #e8ddc4;
+  --paper: #f5edd8;
+  --paper-2: #efe4cb;
+  --ink: #1d1a15;
+  --ink-soft: #4a4237;
+  --red: #a3312a;
+  --muted: #8c8272;
+  --rule: rgba(72, 54, 34, .15);
+  --frame: rgba(72, 54, 34, .34);
+  --colno: #b0a289;
+  --ui-bg: #f3ead4;
+  --ui-line: rgba(72, 54, 34, .18);
+}
+
+body[data-theme="modern"]{
+  --bg: #eceae4;
+  --paper: #fdfcf9;
+  --paper-2: #f7f5ef;
+  --ink: #23211e;
+  --ink-soft: #55504a;
+  --red: #b04a41;
+  --muted: #9b958b;
+  --rule: rgba(0, 0, 0, .045);
+  --frame: rgba(0, 0, 0, .10);
+  --colno: #c8c3ba;
+  --ui-bg: #fbfaf7;
+  --ui-line: rgba(0, 0, 0, .10);
+}
+
+*{ box-sizing: border-box; }
+
+html, body{
+  margin: 0; height: 100%; overflow: hidden;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "SimSun", "Songti SC", "Noto Serif CJK SC", serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+#app{ height: 100%; display: flex; flex-direction: column; }
+
+/* ---------------- 頂欄 ---------------- */
+#bar{
+  height: var(--bar-h); flex: 0 0 var(--bar-h);
+  display: flex; align-items: center; gap: 14px;
+  padding: 0 14px;
+  background: var(--ui-bg);
+  border-bottom: 1px solid var(--ui-line);
+  position: relative; z-index: 30;
+  font-family: "KaiTi", "STKaiti", serif;
+  user-select: none;
+}
+
+.brand{
+  font-size: 17px; letter-spacing: 2px; color: var(--ink);
+  white-space: nowrap;
+}
+.brand span{
+  font-size: 11px; letter-spacing: 4px; color: var(--muted);
+  margin-left: 10px; border-left: 1px solid var(--ui-line); padding-left: 10px;
+}
+
+.nav{ display: flex; align-items: center; gap: 6px; }
+.nav #vol{ font-size: 15px; min-width: 74px; text-align: center; color: var(--ink-soft); letter-spacing: 1px; }
+
+.tools{ margin-left: auto; display: flex; align-items: center; gap: 4px; }
+
+button{
+  font-family: inherit; font-size: 13px; color: var(--ink-soft);
+  background: transparent; border: 1px solid transparent;
+  padding: 5px 9px; border-radius: 3px; cursor: pointer;
+  letter-spacing: 1px; transition: .15s;
+}
+button:hover{ background: rgba(0,0,0,.05); color: var(--ink); }
+button:active{ transform: translateY(1px); }
+button.on{ border-color: var(--ui-line); color: var(--red); }
+
+/* ---------------- 卷面 ---------------- */
+#scroll{
+  flex: 1 1 auto; overflow-x: auto; overflow-y: hidden;
+  background:
+    radial-gradient(circle at 22% 18%, rgba(255,255,255,.55), transparent 52%),
+    radial-gradient(circle at 78% 82%, rgba(180,150,100,.10), transparent 58%),
+    var(--paper);
+  cursor: grab;
+  overscroll-behavior-x: contain;
+  touch-action: pan-x;
+  scrollbar-width: thin;
+}
+#scroll.dragging{ cursor: grabbing; }
+#scroll::-webkit-scrollbar{ height: 9px; }
+#scroll::-webkit-scrollbar-thumb{ background: rgba(120,100,70,.28); border-radius: 5px; }
+#scroll::-webkit-scrollbar-track{ background: transparent; }
+
+#strip{
+  position: relative;
+  height: 100%;
+  min-width: 100%;
+}
+
+/* 天頭／地腳界線 */
+.frame{
+  position: absolute; left: 0; height: 1px;
+  background: var(--frame); pointer-events: none;
+}
+
+/* ---------------- 卷首題簽 ---------------- */
+.juan{
+  position: absolute; right: 0; top: 0; bottom: 0;
+  pointer-events: none;
+}
+.juan-title, .juan-vol, .juan-name{
+  position: absolute; writing-mode: vertical-rl; white-space: nowrap;
+  line-height: 1;
+}
+.juan-title{
+  font-size: calc(var(--f) * 2.35);
+  letter-spacing: .1em; color: var(--ink);
+  font-family: "KaiTi", "STKaiti", serif;
+}
+.juan-vol{
+  font-size: calc(var(--f) * .88);
+  letter-spacing: .22em; color: var(--red);
+  font-family: "KaiTi", "STKaiti", serif;
+}
+.juan-name{
+  font-size: calc(var(--f) * .95);
+  letter-spacing: .1em; color: var(--ink-soft);
+  max-height: 100%; overflow: hidden;
+}
+.juan-rule{
+  position: absolute; top: 0; bottom: 0; width: 1px;
+  background: var(--frame);
+}
+
+/* ---------------- 列 ---------------- */
+.col{
+  position: absolute;
+  font-size: var(--f);
+}
+.col::after{
+  content: ""; position: absolute; top: -0.6em; bottom: -0.4em; right: -0.5px;
+  width: 1px; background: var(--rule);
+}
+body[data-theme="modern"] .col::after{ display: none; }
+
+.colno{
+  position: absolute; top: -1.05em;
+  font-size: calc(var(--f) * .36);
+  font-family: "Georgia", serif;
+  color: var(--colno);
+  letter-spacing: 0;
+  line-height: 1;
+  writing-mode: horizontal-tb;
+}
+
+.seg{
+  position: absolute;
+  writing-mode: vertical-rl;
+  white-space: nowrap;
+  line-height: 1;
+}
+
+.seg.t{
+  font-size: var(--f);
+  letter-spacing: var(--ls);
+  color: var(--ink);
+}
+
+.seg.s{
+  font-size: var(--sf);
+  letter-spacing: 0;
+  color: var(--red);
+  opacity: .92;
+}
+
+/* 批語可點擊高亮 */
+.seg.s:hover{ opacity: 1; }
+
+/* 眉批（天頭） */
+.seg.note{
+  font-size: var(--sf);
+  letter-spacing: 0;
+  color: var(--red);
+  opacity: .78;
+  top: 6px !important;
+  cursor: default;
+}
+.seg.note::before{
+  content: ""; position: absolute; right: 50%; bottom: -3px;
+  width: 1px; height: 4px; background: var(--red); opacity: .3;
+}
+
+/* ---------------- 底欄 ---------------- */
+#status{
+  height: var(--status-h); flex: 0 0 var(--status-h);
+  display: flex; align-items: center; gap: 14px;
+  padding: 0 16px;
+  background: var(--ui-bg);
+  border-top: 1px solid var(--ui-line);
+  font-size: 12px; color: var(--muted);
+  letter-spacing: 1px; user-select: none;
+  font-family: "KaiTi", "STKaiti", serif;
+}
+#bar-progress{
+  flex: 1 1 auto; height: 2px; background: rgba(0,0,0,.07); position: relative;
+}
+#bar-progress i{
+  position: absolute; left: 0; top: 0; bottom: 0; width: 0;
+  background: var(--red); opacity: .55; transition: width .12s linear;
+}
+#hint{ opacity: .6; }
+
+/* ---------------- 目錄 ---------------- */
+#toc{
+  position: fixed; top: 0; right: 0; bottom: 0; width: 380px; max-width: 88vw;
+  background: var(--paper-2);
+  border-left: 1px solid var(--ui-line);
+  box-shadow: -20px 0 50px rgba(0,0,0,.12);
+  z-index: 60; display: flex; flex-direction: column;
+  font-family: "KaiTi", "STKaiti", serif;
+}
+#toc[hidden]{ display: none; }
+.toc-head{
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 18px; border-bottom: 1px solid var(--ui-line);
+  font-size: 15px; letter-spacing: 2px; color: var(--ink-soft);
+}
+.toc-head button{ font-size: 20px; line-height: 1; padding: 0 6px; }
+.toc-list{
+  overflow-y: auto; padding: 10px 8px 40px;
+  display: grid; grid-template-columns: 1fr; gap: 1px;
+}
+.toc-item{
+  text-align: left; padding: 8px 12px; font-size: 14px; line-height: 1.5;
+  color: var(--ink-soft); border-radius: 3px; letter-spacing: .5px;
+}
+.toc-item b{ color: var(--muted); font-weight: normal; margin-right: 8px; font-size: 12px; }
+.toc-item:hover{ background: rgba(0,0,0,.05); }
+.toc-item.cur{ background: rgba(163,49,42,.07); color: var(--red); }
+.toc-item.cur b{ color: var(--red); }
+
+#shade{
+  position: fixed; inset: 0; background: rgba(0,0,0,.25); z-index: 50;
+}
+#shade[hidden]{ display: none; }
+
+/* ---------------- 移動端 ---------------- */
+@media (max-width: 720px){
+  .brand span{ display: none; }
+  .brand{ font-size: 15px; }
+  #bar{ gap: 8px; padding: 0 8px; }
+  .tools button{ padding: 5px 6px; }
+  #colnoBtn, #minus{ display: none; }
+  #hint{ display: none; }
+  .juan-title{ font-size: calc(var(--f) * 1.9); }
+}

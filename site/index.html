@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>脂硯齋重評石頭記 · 卷子本</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body data-theme="print">
+<div id="app">
+
+  <header id="bar">
+    <div class="brand">脂硯齋重評石頭記<span>卷子本</span></div>
+
+    <div class="nav">
+      <button id="prev" title="上一卷（←）">◀</button>
+      <span id="vol">第一回</span>
+      <button id="next" title="下一卷（→）">▶</button>
+    </div>
+
+    <div class="tools">
+      <button id="tocBtn">目錄</button>
+      <button id="themeBtn" title="切換影印／現代">影印</button>
+      <button id="notesBtn" title="批語篩選">批語·全部</button>
+      <button id="colnoBtn" class="on" title="列號">列號</button>
+      <button id="minus" title="縮小字號">A−</button>
+      <button id="plus" title="放大字號">A＋</button>
+    </div>
+  </header>
+
+  <main id="scroll">
+    <div id="strip"></div>
+  </main>
+
+  <footer id="status">
+    <span id="pos">第一回</span>
+    <div id="bar-progress"><i></i></div>
+    <span id="hint">滾輪／拖動／← →　展卷</span>
+  </footer>
+
+  <aside id="toc" hidden>
+    <div class="toc-head">
+      <strong>總目 · 八十卷</strong>
+      <button id="tocClose">×</button>
+    </div>
+    <div id="tocList" class="toc-list"></div>
+  </aside>
+  <div id="shade" hidden></div>
+</div>
+
+<script src="data/book.js"></script>
+<script src="layout.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
