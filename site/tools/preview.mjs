@@ -25,7 +25,7 @@ const laid = L.typeset(ch, G, () => true);
 
 // ---- 字符守恒自检 ----
 let srcN = 0;
-for (const b of ch.b) for (const r of L.runsOf(b)) srcN += (r[0] === 'x' ? r[1] : r[3]).length;
+for (const b of ch.b) for (const r of L.runsOf(b)) srcN += (r[0] === 'x') ? r[1].length : ((r[4] ? r[4].length + 1 : 0) + r[3].length);
 let outN = 0;
 for (const c of laid.cols) if (c) for (const s of c.segs) outN += s.text.length;
 for (const nt of laid.notes) outN += nt.text.length;
@@ -74,7 +74,7 @@ for (let i = startCol; i < laid.total; i++) {
 
 for (const nt of notes) {
   for (let k = 0; k < nt.chunks.length; k++) {
-    const ci = nt.start - k;
+    const ci = nt.start + k;
     if (ci < 0) continue;
     const R = offPx + ci * cw;
     if (R > W) continue;

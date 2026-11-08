@@ -96,7 +96,7 @@
 
     for (const n of notes) {
       for (let k = 0; k < n.chunks.length; k++) {
-        const ci = n.start - k;
+        const ci = n.start + k;
         if (ci < 0) continue;
         const right = (offPx + ci * G.cw + (G.cw / 2 - G.sf) / 2).toFixed(1);
         out.push(`<div class="seg s note" title="${esc(n.src || '')}眉批" style="right:${right}px">${esc(n.chunks[k])}</div>`);

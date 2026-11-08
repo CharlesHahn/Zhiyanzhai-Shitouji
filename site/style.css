@@ -97,12 +97,10 @@ button.on{ border-color: var(--ui-line); color: var(--red); }
   cursor: grab;
   overscroll-behavior-x: contain;
   touch-action: pan-x;
-  scrollbar-width: thin;
+  scrollbar-width: none;      /* 隱藏橫向滾動條，改用底部進度條指示 */
 }
 #scroll.dragging{ cursor: grabbing; }
-#scroll::-webkit-scrollbar{ height: 9px; }
-#scroll::-webkit-scrollbar-thumb{ background: rgba(120,100,70,.28); border-radius: 5px; }
-#scroll::-webkit-scrollbar-track{ background: transparent; }
+#scroll::-webkit-scrollbar{ display: none; }
 
 #strip{
   position: relative;

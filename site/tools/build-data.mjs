@@ -1,4 +1,4 @@
-﻿// 《脂砚斋重评石头记》排版数据构建
+// 《脂砚斋重评石头记》排版数据构建
 // 输入：../脂砚斋重评石头记.md（UTF-8）
 // 输出：../site/data/book.js（window.BOOK = {...}）与 data-report.txt（脏点清单）
 import fs from 'node:fs';
@@ -86,10 +86,10 @@ function pushAnn(runs, inner, lineNo) {
   const m = inner.match(/^([^：:]{1,10})[：:]([\s\S]*)$/);
   if (m && isLabel(m[1])) {
     const { src, kind } = classify(m[1]);
-    runs.push(['a', kind, src, m[2].trim()]);
+    runs.push(['a', kind, src, m[2].trim(), m[1].trim()]);
   } else {
     // 无标签：按位置在后续处理中判定回前/回末/总批
-    runs.push(['a', '无', '', inner.trim()]);
+    runs.push(['a', '无', '', inner.trim(), '']);
     if (inner.length > 0) warn(lineNo, '无标签批语', inner.slice(0, 30));
   }
 }
@@ -142,16 +142,16 @@ for (const ch of chapters) {
     if ((r[1] === '批' || r[1] === '总批') && idx === lastIdx) r[1] = '回末';
   });
 
-  // 第一回卷首的《戚蓼生序》《甲戌本凡例》是前置文字，不是批语
+  // 第一回卷首的《戚蓼生序》《甲戌本凡例》及凡例诗是前置文字，不是批语
   if (ch.n === 1) {
     const startOfText = blocks.findIndex(
-      (b) => !b.onlyAnn && b.runs[0][0] === 'x' && b.runs[0][1].startsWith('此开卷第一回也')
+      (b) => !b.onlyAnn && b.runs.some((r) => r[0] === 'x' && r[1].includes('列位看官'))
     );
     const end = startOfText < 0 ? blocks.length : startOfText;
     blocks.forEach((b, idx) => {
       if (!b.onlyAnn || idx >= end) return;
       const r = b.runs[0];
-      if (r[2] === '' && r[3].length > 40) r[1] = '序';
+      if (r[2] === '') r[1] = '序';
     });
   }
   ch.blocks = blocks;

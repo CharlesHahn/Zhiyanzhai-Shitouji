@@ -24,10 +24,13 @@
     let i = 1;
     while (i < b.length) {
       if (b[i] === 'x') { out.push(['x', b[i + 1]]); i += 2; }
-      else { out.push(['a', b[i + 1], b[i + 2], b[i + 3]]); i += 4; }
+      else { out.push(['a', b[i + 1], b[i + 2], b[i + 3], b[i + 4]]); i += 5; }
     }
     return out;
   }
+
+  // 批語前綴：保留「甲戌側批」「庚辰雙行夾批」這類來源標記
+  const withLabel = (text, label) => (label ? label + '：' + text : text);
 
   function typeset(ch, G, show) {
     const cols = [];
@@ -75,14 +78,15 @@
       if (bi > 0) nextCol();
       for (const run of runsOf(b)) {
         if (run[0] === 'x') { emitText(run[1]); continue; }
-        const kind = run[1], src = run[2], text = run[3];
+        const kind = run[1], src = run[2], text = run[3], label = run[4] || '';
         if (kind === '序') { emitText(text); continue; }
         if (show && !show(kind, src)) continue;
-        if (kind === '眉批') { notes.push({ col: c, text, src }); continue; }
+        const body = withLabel(text, label);
+        if (kind === '眉批') { notes.push({ col: c, text: body, src }); continue; }
         const meta = (src || '') + (kind === '批' ? '' : kind);
-        if (kind === '夹批') emitSmall(text, 2, meta);
-        else if (kind === '侧批') emitSmall(text, 1, meta);
-        else emitSmall(text, 2, meta);
+        if (kind === '夹批') emitSmall(body, 2, meta);
+        else if (kind === '侧批') emitSmall(body, 1, meta);
+        else emitSmall(body, 2, meta);
       }
     });
 
@@ -95,14 +99,20 @@
     return notes.map((n) => {
       const chunks = [];
       for (let i = 0; i < n.text.length; i += perLine) chunks.push(n.text.slice(i, i + perLine));
+      const len = chunks.length;
+      // 列號越大越靠左：眉批自錨點列起「向左」續排，故列號遞增
       const fits = (x) => {
-        if (x - chunks.length + 1 < 0) return false;
-        for (let k = 0; k < chunks.length; k++) if (used.has(x - k)) return false;
+        if (x < 0 || x + len > total) return false;
+        for (let k = 0; k < len; k++) if (used.has(x + k)) return false;
         return true;
       };
-      let s = Math.min(n.col, Math.max(total - 1, 0));
-      while (s > 0 && !fits(s)) s--;
-      for (let k = 0; k < chunks.length; k++) used.add(s - k);
+      let s = Math.max(0, Math.min(n.col, Math.max(total - len, 0)));
+      if (!fits(s)) {
+        let c2 = 0;
+        while (c2 + len <= total && !fits(c2)) c2++;
+        s = c2 + len <= total ? c2 : Math.max(0, total - len);
+      }
+      for (let k = 0; k < len; k++) used.add(s + k);
       return { ...n, start: s, chunks, perLine };
     });
   }
