@@ -1,4 +1,4 @@
-﻿// 把排版内核的输出转成绘制指令（JSON），供 draw-preview.ps1 生成 PNG 预览
+// 把排版内核的输出转成绘制指令（JSON），供 draw-preview.ps1 生成 PNG 预览
 import fs from 'node:fs';
 
 const ROOT = 'D:/Desktop_Env/MyBook/脂砚斋重评石头记/site';
@@ -42,6 +42,8 @@ const offPx = Math.round(nameR + 0.95 * f + 0.35 * cw);
 
 const mainOff = (cw - f) / 2;
 const headY = TOPBAR + G.headH;
+const textTop = TOPBAR + G.textTop;
+const footY = TOPBAR + G.footY;
 const ink = '#1d1a15';
 const red = '#a3312a';
 
@@ -54,19 +56,19 @@ for (let i = startCol; i < laid.total; i++) {
   if (R > W) break;
   const col = laid.cols[i];
   rules.push({ x: +(W - R).toFixed(1) });
-  colnos.push({ x: +(W - R - mainOff - f / 2).toFixed(1), y: headY - G.rh * 0.95, t: String(i + 1) });
+  colnos.push({ x: +(W - R - mainOff - f / 2).toFixed(1), y: textTop - G.rh * 0.95, t: String(i + 1) });
   if (!col) continue;
   for (const s of col.segs) {
     if (s.t === 'text') {
       const x = W - R - mainOff - f;
       for (let k = 0; k < s.text.length; k++) {
-        glyphs.push({ c: s.text[k], x: +x.toFixed(1), y: +(headY + s.top * G.rh + k * G.rh).toFixed(1), s: f, color: ink });
+        glyphs.push({ c: s.text[k], x: +x.toFixed(1), y: +(textTop + s.top * G.rh + k * G.rh).toFixed(1), s: f, color: ink });
       }
     } else {
       const laneRight = s.lane * (cw / 2) + (cw / 2 - G.sf) / 2;
       const x = W - R - laneRight - G.sf;
       for (let k = 0; k < s.text.length; k++) {
-        glyphs.push({ c: s.text[k], x: +x.toFixed(1), y: +(headY + s.top * G.rh + k * G.sf).toFixed(1), s: G.sf, color: red });
+        glyphs.push({ c: s.text[k], x: +x.toFixed(1), y: +(textTop + s.top * G.rh + k * G.sa).toFixed(1), s: G.sf, color: red });
       }
     }
   }
@@ -81,7 +83,7 @@ for (const nt of notes) {
     const x = W - R - (cw / 2 - G.sf) / 2 - G.sf;
     const txt = nt.chunks[k];
     for (let j = 0; j < txt.length; j++) {
-      glyphs.push({ c: txt[j], x: +x.toFixed(1), y: +(TOPBAR + 6 + j * G.sf).toFixed(1), s: G.sf, color: red, note: 1 });
+      glyphs.push({ c: txt[j], x: +x.toFixed(1), y: +(TOPBAR + 8 + j * G.sa).toFixed(1), s: G.sf, color: red, note: 1 });
     }
   }
 }
@@ -90,23 +92,25 @@ const juan = [];
 if (startCol === 0) {
   const title = '脂硯齋重評石頭記';
   for (let k = 0; k < title.length; k++) {
-    juan.push({ c: title[k], x: +(W - titleR - 2.35 * f).toFixed(1), y: +(TOPBAR + G.headH * 0.5 + k * 2.35 * f * 1.1).toFixed(1), s: 2.35 * f, color: ink, font: 'KaiTi' });
+    juan.push({ c: title[k], x: +(W - titleR - 2.35 * f).toFixed(1), y: +(textTop + k * 2.35 * f * 1.1).toFixed(1), s: 2.35 * f, color: ink, font: 'KaiTi' });
   }
-  const CN = ['零','一','二','三','四','五','六','七','八','九'];
+  const CN = ['零', '一', '二', '三', '四', '五', '六', '七', '八', '九'];
   const numCN = (x) => x <= 10 ? (x === 10 ? '十' : CN[x]) : x < 20 ? '十' + CN[x - 10] : CN[Math.floor(x / 10)] + '十' + (x % 10 ? CN[x % 10] : '');
   const vol = '卷之' + numCN(ch.n);
   for (let k = 0; k < vol.length; k++) {
-    juan.push({ c: vol[k], x: +(W - volR - 0.88 * f).toFixed(1), y: +(TOPBAR + G.headH * 0.72 + k * 0.88 * f * 1.22).toFixed(1), s: 0.88 * f, color: red, font: 'KaiTi' });
+    juan.push({ c: vol[k], x: +(W - volR - 0.88 * f).toFixed(1), y: +(textTop + 0.2 * f + k * 0.88 * f * 1.22).toFixed(1), s: 0.88 * f, color: red, font: 'KaiTi' });
   }
   const nm = ch.full;
   for (let k = 0; k < nm.length; k++) {
-    juan.push({ c: nm[k], x: +(W - nameR - 0.95 * f).toFixed(1), y: +(TOPBAR + G.headH * 1.2 + k * 0.95 * f * 1.1).toFixed(1), s: 0.95 * f, color: ink, font: 'SimSun' });
+    juan.push({ c: nm[k], x: +(W - nameR - 0.95 * f).toFixed(1), y: +(textTop + 0.7 * f + k * 0.95 * f * 1.1).toFixed(1), s: 0.95 * f, color: ink, font: 'SimSun' });
   }
 }
 
 const out = {
-  W, H, f, cw: G.cw, rh: G.rh, sf: G.sf, headH: G.headH, bodyH: G.bodyH,
-  top: TOPBAR, headY, footY: headY + G.bodyH, frameRight: +(W - offPx).toFixed(1), juanRule: +(W - (offPx - 0.16 * cw)).toFixed(1),
+  W, H, f, cw: G.cw, rh: G.rh, sf: G.sf, sa: G.sa, headH: G.headH, bodyH: G.bodyH,
+  top: TOPBAR, headY, textTop, footY,
+  frameRight: +(W - offPx).toFixed(1),
+  juanRule: +(W - (offPx - 0.16 * cw)).toFixed(1),
   glyphs, rules, colnos, juan,
   chapter: ch.n, cols: laid.total, notes: notes.length,
 };

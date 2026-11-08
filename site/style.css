@@ -1,4 +1,4 @@
-/* 脂硯齋重評石頭記 · 卷子本 */
+﻿/* 脂硯齋重評石頭記 · 卷子本 */
 :root{
   --f: 17px;
   --rh: 17.68px;
@@ -149,7 +149,8 @@ button.on{ border-color: var(--ui-line); color: var(--red); }
   font-size: var(--f);
 }
 .col::after{
-  content: ""; position: absolute; top: -0.6em; bottom: -0.4em; right: -0.5px;
+  content: ""; position: absolute; right: -0.5px;
+  top: calc(-1 * var(--pad-top)); bottom: calc(-1 * var(--pad-bottom));
   width: 1px; background: var(--rule);
 }
 body[data-theme="modern"] .col::after{ display: none; }
@@ -179,7 +180,7 @@ body[data-theme="modern"] .col::after{ display: none; }
 
 .seg.s{
   font-size: var(--sf);
-  letter-spacing: 0;
+  letter-spacing: var(--ls-small);
   color: var(--red);
   opacity: .92;
 }
@@ -190,7 +191,7 @@ body[data-theme="modern"] .col::after{ display: none; }
 /* 眉批（天頭） */
 .seg.note{
   font-size: var(--sf);
-  letter-spacing: 0;
+  letter-spacing: var(--ls-small);
   color: var(--red);
   opacity: .78;
   top: 6px !important;

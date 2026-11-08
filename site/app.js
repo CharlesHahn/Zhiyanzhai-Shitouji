@@ -39,7 +39,11 @@
     s.setProperty('--rh', g.rh + 'px');
     s.setProperty('--cw', g.cw + 'px');
     s.setProperty('--sf', g.sf + 'px');
+    s.setProperty('--sa', g.sa + 'px');
     s.setProperty('--ls', g.ls + 'px');
+    s.setProperty('--ls-small', g.lsSmall + 'px');
+    s.setProperty('--pad-top', g.topPad + 'px');
+    s.setProperty('--pad-bottom', g.botPad + 'px');
   }
 
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -64,7 +68,7 @@
     const out = [];
 
     out.push(`<div class="frame" style="top:${G.headH}px;right:${offPx}px"></div>`);
-    out.push(`<div class="frame" style="top:${(G.headH + bodyH).toFixed(1)}px;right:${offPx}px"></div>`);
+    out.push(`<div class="frame" style="top:${G.footY.toFixed(1)}px;right:${offPx}px"></div>`);
 
     out.push(
       `<div class="juan" style="width:${offPx}px">` +
@@ -78,7 +82,7 @@
     for (let i = 0; i < total; i++) {
       const col = laid.cols[i];
       const right = (offPx + i * G.cw).toFixed(1);
-      out.push(`<div class="col" style="right:${right}px;top:${G.headH}px;height:${bodyH}px">`);
+      out.push(`<div class="col" style="right:${right}px;top:${G.textTop}px;height:${bodyH}px">`);
       if (state.colno) out.push(`<div class="colno" style="right:${((G.cw - G.f) / 2).toFixed(1)}px">${i + 1}</div>`);
       if (col) {
         for (const s of col.segs) {
@@ -105,7 +109,7 @@
 
     const stripW = offPx + total * G.cw + 36;
     stripEl.style.width = stripW + 'px';
-    stripEl.style.height = (G.headH + bodyH + 24) + 'px';
+    stripEl.style.height = (G.footY + 14) + 'px';
     stripEl.innerHTML = out.join('');
 
     requestAnimationFrame(() => {

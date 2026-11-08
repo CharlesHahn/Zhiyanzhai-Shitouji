@@ -1,21 +1,27 @@
 /* 排版内核：不碰 DOM，瀏覽器與 Node 共用
- * 版式單位：正文一字一格；雙行夾批每行 2 窄行 × 2 字；眉批走天頭。
+ * 版式單位：正文一字一格；雙行夾批每行 2 窄行；眉批走天頭。
  */
 (function (root) {
   'use strict';
 
   function geom(opts) {
     const f = opts.f;
-    const rh = f * 1.04;          // 每行（字）高度
-    const cw = f * 1.34;          // 每列寬度（含界欄間距）
+    const rh = f * 1.08;          // 正文行距（字與字的上下步進）
+    const cw = f * 1.45;          // 列寬（含界欄間距）
     const avail = opts.avail;     // 版心可用高
-    const headH = Math.max(f * 2.4, Math.round(avail * 0.15));
-    const rows = Math.max(8, Math.floor((avail - headH - 4) / rh));
+    const headH = Math.max(f * 2.6, Math.round(avail * 0.16));   // 天頭
+    const topPad = rh * 1.25;     // 天頭界線與首字之間的留白
+    const botPad = rh * 0.85;     // 末字與地腳界線之間的留白
+    const rows = Math.max(6, Math.floor((avail - headH - topPad - botPad) / rh));
+    const sf = f * 0.62;          // 批語字號
+    const sa = sf * 1.28;         // 批語字距（上下步進）
+    const bodyH = rows * rh;
+    const textTop = headH + topPad;
     return {
-      f, rh, cw, rows, headH, avail,
-      sf: f * 0.52,               // 批語字號
+      f, rh, cw, rows, headH, avail, sf, sa, topPad, botPad, bodyH,
+      textTop, footY: textTop + bodyH + botPad,
       ls: rh - f,                 // 正文字距（使步進 = rh）
-      bodyH: rows * rh,
+      lsSmall: sa - sf,           // 批語字距（使步進 = sa）
     };
   }
 
@@ -54,12 +60,14 @@
       if (seg) colAt(c).segs.push(seg);
     }
 
+    // lanes = 2 雙行夾批；1 單行側批
     function emitSmall(str, lanes, meta) {
       let i = 0;
       while (i < str.length) {
         if (r >= G.rows) nextCol();
-        const capRows = G.rows - r;
-        const cap = capRows * 2 * lanes;
+        const availPx = (G.rows - r) * G.rh;
+        const capPerLane = Math.max(1, Math.floor(availPx / G.sa));
+        const cap = capPerLane * lanes;
         const chunk = str.slice(i, i + cap);
         i += chunk.length;
         const per = Math.ceil(chunk.length / lanes);
@@ -70,7 +78,7 @@
           if (part.length > maxLen) maxLen = part.length;
           colAt(c).segs.push({ t: 'small', top: r, lane: L, text: part, meta });
         }
-        r += Math.ceil(maxLen / 2);
+        r += Math.max(1, Math.ceil((maxLen * G.sa) / G.rh));
       }
     }
 
@@ -95,7 +103,7 @@
 
   function placeNotes(notes, total, G) {
     const used = new Set();
-    const perLine = Math.max(4, Math.floor((G.headH - G.rh - 8) / G.sf));
+    const perLine = Math.max(4, Math.floor((G.headH - 8) / G.sa));
     return notes.map((n) => {
       const chunks = [];
       for (let i = 0; i < n.text.length; i += perLine) chunks.push(n.text.slice(i, i + perLine));
