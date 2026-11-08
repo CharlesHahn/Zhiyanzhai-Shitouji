@@ -1,4 +1,4 @@
-﻿/* 脂硯齋重評石頭記 · 卷子本 */
+/* 脂硯齋重評石頭記 · 卷子本 */
 :root{
   --f: 17px;
   --rh: 17.68px;
@@ -54,7 +54,8 @@ html, body{
 /* ---------------- 頂欄 ---------------- */
 #bar{
   height: var(--bar-h); flex: 0 0 var(--bar-h);
-  display: flex; align-items: center; gap: 14px;
+  display: flex; flex-direction: row-reverse; align-items: center; gap: 14px;
+  justify-content: space-between;
   padding: 0 14px;
   background: var(--ui-bg);
   border-bottom: 1px solid var(--ui-line);
@@ -63,19 +64,22 @@ html, body{
   user-select: none;
 }
 
+/* 右起：書名在右端，「卷子本」在其左 */
 .brand{
+  display: flex; flex-direction: row-reverse; align-items: center;
   font-size: 17px; letter-spacing: 2px; color: var(--ink);
   white-space: nowrap;
 }
 .brand span{
   font-size: 11px; letter-spacing: 4px; color: var(--muted);
-  margin-left: 10px; border-left: 1px solid var(--ui-line); padding-left: 10px;
+  margin-right: 10px; border-right: 1px solid var(--ui-line); padding-right: 10px;
 }
 
 .nav{ display: flex; align-items: center; gap: 6px; }
 .nav #vol{ font-size: 15px; min-width: 74px; text-align: center; color: var(--ink-soft); letter-spacing: 1px; }
 
-.tools{ margin-left: auto; display: flex; align-items: center; gap: 4px; }
+/* 工具列亦自右向左：目錄最靠近書名一側 */
+.tools{ display: flex; flex-direction: row-reverse; align-items: center; gap: 4px; }
 
 button{
   font-family: inherit; font-size: 13px; color: var(--ink-soft);
@@ -205,7 +209,7 @@ body[data-theme="modern"] .col::after{ display: none; }
 /* ---------------- 底欄 ---------------- */
 #status{
   height: var(--status-h); flex: 0 0 var(--status-h);
-  display: flex; align-items: center; gap: 14px;
+  display: flex; flex-direction: row-reverse; align-items: center; gap: 14px;
   padding: 0 16px;
   background: var(--ui-bg);
   border-top: 1px solid var(--ui-line);
@@ -217,7 +221,7 @@ body[data-theme="modern"] .col::after{ display: none; }
   flex: 1 1 auto; height: 2px; background: rgba(0,0,0,.07); position: relative;
 }
 #bar-progress i{
-  position: absolute; left: 0; top: 0; bottom: 0; width: 0;
+  position: absolute; right: 0; top: 0; bottom: 0; width: 0;
   background: var(--red); opacity: .55; transition: width .12s linear;
 }
 #hint{ opacity: .6; }
@@ -233,7 +237,7 @@ body[data-theme="modern"] .col::after{ display: none; }
 }
 #toc[hidden]{ display: none; }
 .toc-head{
-  display: flex; align-items: center; justify-content: space-between;
+  display: flex; flex-direction: row-reverse; align-items: center; justify-content: space-between;
   padding: 14px 18px; border-bottom: 1px solid var(--ui-line);
   font-size: 15px; letter-spacing: 2px; color: var(--ink-soft);
 }
@@ -243,10 +247,12 @@ body[data-theme="modern"] .col::after{ display: none; }
   display: grid; grid-template-columns: 1fr; gap: 1px;
 }
 .toc-item{
-  text-align: left; padding: 8px 12px; font-size: 14px; line-height: 1.5;
+  display: flex; flex-direction: row-reverse; align-items: baseline; gap: 8px;
+  text-align: right; padding: 8px 12px; font-size: 14px; line-height: 1.5;
   color: var(--ink-soft); border-radius: 3px; letter-spacing: .5px;
 }
-.toc-item b{ color: var(--muted); font-weight: normal; margin-right: 8px; font-size: 12px; }
+.toc-item span{ flex: 1 1 auto; text-align: right; }
+.toc-item b{ color: var(--muted); font-weight: normal; font-size: 12px; white-space: nowrap; }
 .toc-item:hover{ background: rgba(0,0,0,.05); }
 .toc-item.cur{ background: rgba(163,49,42,.07); color: var(--red); }
 .toc-item.cur b{ color: var(--red); }

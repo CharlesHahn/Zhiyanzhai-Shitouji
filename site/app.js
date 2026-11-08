@@ -1,4 +1,4 @@
-﻿/* 脂硯齋重評石頭記 · 卷子本 —— 渲染與交互層 */
+/* 脂硯齋重評石頭記 · 卷子本 —— 渲染與交互層 */
 (() => {
   'use strict';
 
@@ -145,7 +145,7 @@
   function buildToc() {
     const list = $('tocList');
     list.innerHTML = CHS.map((ch) =>
-      `<button class="toc-item" data-n="${ch.n}"><b>卷${numCN(ch.n)}</b>${esc(ch.t)}</button>`
+      `<button class="toc-item" data-n="${ch.n}"><b>卷${numCN(ch.n)}</b><span>${esc(ch.t)}</span></button>`
     ).join('');
     list.addEventListener('click', (e) => {
       const b = e.target.closest('.toc-item');
