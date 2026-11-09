@@ -28,7 +28,8 @@
   --c-meng: #8a5a2f;
   --c-jing: #6b3f7a;
   --c-jimao: #2f6b5a;
-  --c-other: #6b6459;
+  --c-other: #8a8578;
+  --c-daikao: #4f4a45;
 }
 
 body[data-theme="modern"]{
@@ -209,6 +210,7 @@ body[data-theme="modern"] .col::after{ display: none; }
 .seg.s.k-meng,     .seg.note.k-meng    { color: var(--c-meng); }
 .seg.s.k-jing,     .seg.note.k-jing    { color: var(--c-jing); }
 .seg.s.k-jimao,    .seg.note.k-jimao   { color: var(--c-jimao); }
+.seg.s.k-daikao,   .seg.note.k-daikao  { color: var(--c-daikao); }
 .seg.s.k-other,    .seg.note.k-other   { color: var(--c-other); }
 
 /* 批語可點擊高亮 */

@@ -1,4 +1,4 @@
-/* 脂硯齋重評石頭記 · 卷子本 —— 渲染與交互層 */
+﻿/* 脂硯齋重評石頭記 · 卷子本 —— 渲染與交互層 */
 (() => {
   'use strict';
 
@@ -26,7 +26,7 @@
 
   const availH = () => window.innerHeight - TITLE_H - STATUS_H;
 
-  const SRC_CLASS = { '甲戌': 'jiaxu', '庚辰': 'gengchen', '蒙': 'meng', '靖': 'jing', '己卯': 'jimao' };
+  const SRC_CLASS = { '甲戌': 'jiaxu', '庚辰': 'gengchen', '蒙': 'meng', '靖': 'jing', '己卯': 'jimao', '待考': 'daikao' };
   const srcKey = (s) => SRC_CLASS[s] || '其他';
   const clsOf = (s) => SRC_CLASS[s] || 'other';
 
@@ -163,8 +163,8 @@
 
 
   /* ---------------- 批語來源圖例 ---------------- */
-  const LEGEND = [['甲戌', '甲戌本'], ['庚辰', '庚辰本'], ['蒙', '蒙府本'], ['靖', '靖本'], ['己卯', '己卯本'], ['其他', '其他']];
-  const COLORS = { '甲戌': '#a3312a', '庚辰': '#2e5c8a', '蒙': '#8a5a2f', '靖': '#6b3f7a', '己卯': '#2f6b5a', '其他': '#6b6459' };
+  const LEGEND = [['甲戌', '甲戌本'], ['庚辰', '庚辰本'], ['蒙', '蒙府本'], ['靖', '靖本'], ['己卯', '己卯本'], ['待考', '待考'], ['其他', '其他']];
+  const COLORS = { '甲戌': '#a3312a', '庚辰': '#2e5c8a', '蒙': '#8a5a2f', '靖': '#6b3f7a', '己卯': '#2f6b5a', '待考': '#4f4a45', '其他': '#8a8578' };
 
   function syncFilterUI() {
     const label = state.notes === 'all' ? '全部' : state.notes === 'none' ? '關閉' : state.notes;
@@ -203,7 +203,7 @@
       $('themeBtn').textContent = state.theme === 'print' ? '影印' : '現代';
     };
 
-    const MODES = ['all', '甲戌', '庚辰', '蒙', '靖', '己卯', '其他', 'none'];
+    const MODES = ['all', '甲戌', '庚辰', '蒙', '靖', '己卯', '待考', '其他', 'none'];
     $('notesBtn').onclick = () => {
       state.notes = MODES[(MODES.indexOf(state.notes) + 1) % MODES.length];
       syncFilterUI();

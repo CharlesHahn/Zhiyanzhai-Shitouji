@@ -26,7 +26,7 @@ const SRC_RULES = [
   ['梦', ['梦']],
   ['校者注', ['校者注']],
   ['题曰', ['题曰']],
-  ['该', ['该']],            // 「该批」来源待考，单列
+  ['待考', ['该']],          // 「该批」来源待考，单列
 ];
 const SRC_PREFIXES = SRC_RULES.flatMap(([, list]) => list);
 
@@ -35,12 +35,14 @@ const warn = (lineNo, kind, detail) => anomalies.push({ lineNo, kind, detail });
 
 // ---------- 批语分类 ----------
 function classify(label) {
+  if (label.includes('回目标题')) return { src: '', kind: '校记' };   // 校勘记，非批语
   let src = '', rest = label;
   outer: for (const [name, list] of SRC_RULES) {
     for (const p of list) {
       if (label.startsWith(p)) { src = name; rest = label.slice(p.length); break outer; }
     }
   }
+  if (label.includes('该')) src = '待考';
   let kind;
   if (/回前/.test(rest)) kind = '回前';
   else if (/回末|回后/.test(rest)) kind = '回末';

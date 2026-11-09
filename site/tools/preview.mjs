@@ -46,8 +46,8 @@ const headY = TOPBAR + G.headH;
 const textTop = TOPBAR + G.textTop;
 const footY = TOPBAR + G.footY;
 const ink = '#1d1a15';
-const SRC_COLOR = { '甲戌': '#a3312a', '庚辰': '#2e5c8a', '蒙': '#8a5a2f', '靖': '#6b3f7a', '己卯': '#2f6b5a' };
-const colorOf = (s) => SRC_COLOR[s] || '#6b6459';
+const SRC_COLOR = { '甲戌': '#a3312a', '庚辰': '#2e5c8a', '蒙': '#8a5a2f', '靖': '#6b3f7a', '己卯': '#2f6b5a', '待考': '#4f4a45' };
+const colorOf = (s) => SRC_COLOR[s] || '#8a8578';
 const red = '#a3312a';
 
 const glyphs = [];
