@@ -273,7 +273,7 @@ body[data-theme="modern"] .col::after{ display: none; }
 /* ---------------- 移動端 ---------------- */
 @media (max-width: 720px){
   .brand-sub{ display: none; }
-  .brand{ font-size: 15px; }
+  .brand-title{ font-size: 15px; }
   #bar{ gap: 8px; padding: 0 8px; }
   .tools button{ padding: 5px 6px; }
   #colnoBtn, #minus{ display: none; }
