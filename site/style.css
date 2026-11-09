@@ -67,12 +67,19 @@ html, body{
 /* 右起：書名在右端，「卷子本」在其左 */
 .brand{
   display: flex; flex-direction: row-reverse; align-items: center;
-  font-size: 17px; letter-spacing: 2px; color: var(--ink);
   white-space: nowrap;
 }
-.brand span{
+.brand-title{
+  font-size: 17px; letter-spacing: 2px; color: var(--ink);
+}
+.brand-sub{
   font-size: 11px; letter-spacing: 4px; color: var(--muted);
   margin-right: 10px; border-right: 1px solid var(--ui-line); padding-right: 10px;
+}
+
+/* 匾額式字序：逐字自右向左（數字、英文另置，不套此類） */
+.plaque, .brand-title, .brand-sub, .toc-head strong, .toc-item b, .toc-item span{
+  direction: rtl; unicode-bidi: bidi-override;
 }
 
 .nav{ display: flex; align-items: center; gap: 6px; }
@@ -225,6 +232,7 @@ body[data-theme="modern"] .col::after{ display: none; }
   background: var(--red); opacity: .55; transition: width .12s linear;
 }
 #hint{ opacity: .6; }
+#pct{ min-width: 40px; color: var(--muted); letter-spacing: 0; }
 
 /* ---------------- 目錄 ---------------- */
 #toc{
@@ -264,7 +272,7 @@ body[data-theme="modern"] .col::after{ display: none; }
 
 /* ---------------- 移動端 ---------------- */
 @media (max-width: 720px){
-  .brand span{ display: none; }
+  .brand-sub{ display: none; }
   .brand{ font-size: 15px; }
   #bar{ gap: 8px; padding: 0 8px; }
   .tools button{ padding: 5px 6px; }

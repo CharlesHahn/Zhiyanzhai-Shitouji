@@ -1,4 +1,4 @@
-/* 脂硯齋重評石頭記 · 卷子本 —— 渲染與交互層 */
+﻿/* 脂硯齋重評石頭記 · 卷子本 —— 渲染與交互層 */
 (() => {
   'use strict';
 
@@ -128,8 +128,8 @@
 
   function syncStatus() {
     const p = progress();
-    const txt = `第${numCN(state.n)}回 · ${(p * 100).toFixed(0)}%`;
-    $('pos').textContent = txt;
+    $('pos').textContent = `第${numCN(state.n)}回`;
+    $('pct').textContent = (p * 100).toFixed(0) + '%';
     $('bar-progress').firstElementChild.style.width = (p * 100) + '%';
     $('vol').textContent = `第${numCN(state.n)}回`;
     document.querySelectorAll('.toc-item').forEach((el) => el.classList.toggle('cur', +el.dataset.n === state.n));

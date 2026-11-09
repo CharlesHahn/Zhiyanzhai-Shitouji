@@ -10,21 +10,24 @@
 <div id="app">
 
   <header id="bar">
-    <div class="brand">脂硯齋重評石頭記<span>卷子本</span></div>
+    <div class="brand">
+      <span class="brand-title">脂硯齋重評石頭記</span>
+      <span class="brand-sub">卷子本</span>
+    </div>
 
     <div class="nav">
-      <button id="next" title="後卷（←）">後卷</button>
-      <span id="vol">第一回</span>
-      <button id="prev" title="前卷（→）">前卷</button>
+      <button id="next" class="plaque" title="後卷（←）">後卷</button>
+      <span id="vol" class="plaque">第一回</span>
+      <button id="prev" class="plaque" title="前卷（→）">前卷</button>
     </div>
 
     <div class="tools">
-      <button id="tocBtn">目錄</button>
-      <button id="themeBtn" title="切換影印／現代">影印</button>
-      <button id="notesBtn" title="批語篩選">批語·全部</button>
-      <button id="colnoBtn" class="on" title="列號">列號</button>
-      <button id="minus" title="縮小字號">A−</button>
-      <button id="plus" title="放大字號">A＋</button>
+      <button id="tocBtn" class="plaque">目錄</button>
+      <button id="themeBtn" class="plaque" title="切換影印／現代">影印</button>
+      <button id="notesBtn" class="plaque" title="批語篩選">批語·全部</button>
+      <button id="colnoBtn" class="plaque on" title="列號">列號</button>
+      <button id="minus" class="plaque" title="縮小字號">小字</button>
+      <button id="plus" class="plaque" title="放大字號">大字</button>
     </div>
   </header>
 
@@ -33,9 +36,10 @@
   </main>
 
   <footer id="status">
-    <span id="pos">第一回</span>
+    <span id="pos" class="plaque">第一回</span>
+    <span id="pct">0%</span>
     <div id="bar-progress"><i></i></div>
-    <span id="hint">滾輪／拖動／← →　展卷</span>
+    <span id="hint" class="plaque">滾輪 · 拖動 · 左右鍵</span>
   </footer>
 
   <aside id="toc" hidden>
