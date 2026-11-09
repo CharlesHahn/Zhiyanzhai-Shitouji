@@ -1,4 +1,4 @@
-// 《脂砚斋重评石头记》排版数据构建
+﻿// 《脂砚斋重评石头记》排版数据构建
 // 输入：../脂砚斋重评石头记.md（UTF-8）
 // 输出：../site/data/book.js（window.BOOK = {...}）与 data-report.txt（脏点清单）
 import fs from 'node:fs';
@@ -13,18 +13,34 @@ const REPORT = path.join(ROOT, 'site', 'tools', 'data-report.txt');
 const raw = fs.readFileSync(SRC, 'utf8');
 const lines = raw.split(/\r?\n/);
 
-const SOURCES = ['甲戌', '庚辰', '己卯', '戚', '蒙', '靖', '脂', '甲', '庚', '梦', '该', '校者注', '题曰'];
+// 书源归并表：同一抄本的不同写法（缩写、OCR 讹字）归到一处
+// 顺序有意义：长前缀在前（如「甲戌」先于「甲」，「庚辰」先于「庚」）
+const SRC_RULES = [
+  ['甲戌', ['甲戌', '甲']],
+  ['庚辰', ['庚辰', '庚', '辰']],
+  ['己卯', ['己卯', '己']],
+  ['蒙', ['蒙']],
+  ['靖', ['靖', '郊']],      // 「郊批」疑为「靖批」之讹，暂并入靖
+  ['戚', ['戚']],
+  ['脂', ['脂']],
+  ['梦', ['梦']],
+  ['校者注', ['校者注']],
+  ['题曰', ['题曰']],
+  ['该', ['该']],            // 「该批」来源待考，单列
+];
+const SRC_PREFIXES = SRC_RULES.flatMap(([, list]) => list);
 
 const anomalies = [];
 const warn = (lineNo, kind, detail) => anomalies.push({ lineNo, kind, detail });
 
 // ---------- 批语分类 ----------
 function classify(label) {
-  let src = '';
-  for (const s of SOURCES) {
-    if (label.startsWith(s)) { src = s; break; }
+  let src = '', rest = label;
+  outer: for (const [name, list] of SRC_RULES) {
+    for (const p of list) {
+      if (label.startsWith(p)) { src = name; rest = label.slice(p.length); break outer; }
+    }
   }
-  const rest = label.slice(src.length);
   let kind;
   if (/回前/.test(rest)) kind = '回前';
   else if (/回末|回后/.test(rest)) kind = '回末';
@@ -40,7 +56,7 @@ function classify(label) {
 function isLabel(s) {
   if (!s || s.length > 8) return false;
   if (s.includes('，') || s.includes('。')) return false;
-  if (SOURCES.some((x) => s.startsWith(x))) return true;
+  if (SRC_PREFIXES.some((x) => s.startsWith(x))) return true;
   return /^[^：]{0,4}(批|评|注)$/.test(s);
 }
 
@@ -84,9 +100,10 @@ function pushText(runs, s) {
 
 function pushAnn(runs, inner, lineNo) {
   const m = inner.match(/^([^：:]{1,10})[：:]([\s\S]*)$/);
-  if (m && isLabel(m[1])) {
-    const { src, kind } = classify(m[1]);
-    runs.push(['a', kind, src, m[2].trim(), m[1].trim()]);
+  const label = m ? m[1].trim() : '';      // 【 该 批：…】 這類前導空格先去掉
+  if (m && isLabel(label)) {
+    const { src, kind } = classify(label);
+    runs.push(['a', kind, src, m[2].trim(), label]);
   } else {
     // 无标签：按位置在后续处理中判定回前/回末/总批
     runs.push(['a', '无', '', inner.trim(), '']);

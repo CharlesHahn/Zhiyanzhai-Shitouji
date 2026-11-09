@@ -1,4 +1,4 @@
-/* 脂硯齋重評石頭記 · 卷子本 */
+﻿/* 脂硯齋重評石頭記 · 卷子本 */
 :root{
   --f: 17px;
   --rh: 17.68px;
@@ -22,6 +22,13 @@
   --colno: #b0a289;
   --ui-bg: #f3ead4;
   --ui-line: rgba(72, 54, 34, .18);
+
+  --c-jiaxu: #a3312a;
+  --c-gengchen: #2e5c8a;
+  --c-meng: #8a5a2f;
+  --c-jing: #6b3f7a;
+  --c-jimao: #2f6b5a;
+  --c-other: #6b6459;
 }
 
 body[data-theme="modern"]{
@@ -192,9 +199,17 @@ body[data-theme="modern"] .col::after{ display: none; }
 .seg.s{
   font-size: var(--sf);
   letter-spacing: var(--ls-small);
-  color: var(--red);
+  color: var(--c-other);
   opacity: .92;
 }
+
+/* 批語按來源著色 */
+.seg.s.k-jiaxu,    .seg.note.k-jiaxu   { color: var(--c-jiaxu); }
+.seg.s.k-gengchen, .seg.note.k-gengchen{ color: var(--c-gengchen); }
+.seg.s.k-meng,     .seg.note.k-meng    { color: var(--c-meng); }
+.seg.s.k-jing,     .seg.note.k-jing    { color: var(--c-jing); }
+.seg.s.k-jimao,    .seg.note.k-jimao   { color: var(--c-jimao); }
+.seg.s.k-other,    .seg.note.k-other   { color: var(--c-other); }
 
 /* 批語可點擊高亮 */
 .seg.s:hover{ opacity: 1; }
@@ -279,4 +294,24 @@ body[data-theme="modern"] .col::after{ display: none; }
   #colnoBtn, #minus{ display: none; }
   #hint{ display: none; }
   .juan-title{ font-size: calc(var(--f) * 1.9); }
+  #legend{ display: none; }
 }
+
+/* ---------------- 來源圖例 ---------------- */
+#legend{
+  position: fixed; right: 12px; bottom: 42px; z-index: 25;
+  display: flex; flex-direction: row-reverse; gap: 3px;
+  opacity: .5; transition: opacity .2s;
+}
+#legend:hover{ opacity: 1; }
+#legend button{
+  display: flex; align-items: center; gap: 5px;
+  padding: 3px 8px; font-size: 11px; letter-spacing: 1px;
+  background: rgba(245, 237, 216, .92); border: 1px solid var(--ui-line);
+  color: var(--ink-soft); border-radius: 3px;
+}
+#legend button i{ width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
+#legend button.on{ border-color: var(--ink-soft); color: var(--ink); }
+
+/* 圖例在窄屏隱藏（置於最後，確保覆蓋上面的 display:flex） */
+@media (max-width: 720px){ #legend{ display: none; } }

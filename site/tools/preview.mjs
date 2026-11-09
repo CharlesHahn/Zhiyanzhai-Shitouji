@@ -1,4 +1,4 @@
-// 把排版内核的输出转成绘制指令（JSON），供 draw-preview.ps1 生成 PNG 预览
+﻿// 把排版内核的输出转成绘制指令（JSON），供 draw-preview.ps1 生成 PNG 预览
 import fs from 'node:fs';
 
 const ROOT = 'D:/Desktop_Env/MyBook/脂砚斋重评石头记/site';
@@ -41,10 +41,13 @@ const nameR = volR + 0.88 * f + 0.25 * f;
 const offPx = Math.round(nameR + 0.95 * f + 0.35 * cw);
 
 const mainOff = (cw - f) / 2;
+const shift = startCol * cw;   // 视窗左移的像素（startCol 为跳过列数）
 const headY = TOPBAR + G.headH;
 const textTop = TOPBAR + G.textTop;
 const footY = TOPBAR + G.footY;
 const ink = '#1d1a15';
+const SRC_COLOR = { '甲戌': '#a3312a', '庚辰': '#2e5c8a', '蒙': '#8a5a2f', '靖': '#6b3f7a', '己卯': '#2f6b5a' };
+const colorOf = (s) => SRC_COLOR[s] || '#6b6459';
 const red = '#a3312a';
 
 const glyphs = [];
@@ -52,7 +55,7 @@ const rules = [];
 const colnos = [];
 
 for (let i = startCol; i < laid.total; i++) {
-  const R = offPx + i * cw;
+  const R = offPx + i * cw - shift;
   if (R > W) break;
   const col = laid.cols[i];
   rules.push({ x: +(W - R).toFixed(1) });
@@ -68,7 +71,7 @@ for (let i = startCol; i < laid.total; i++) {
       const laneRight = s.lane * (cw / 2) + (cw / 2 - G.sf) / 2;
       const x = W - R - laneRight - G.sf;
       for (let k = 0; k < s.text.length; k++) {
-        glyphs.push({ c: s.text[k], x: +x.toFixed(1), y: +(textTop + s.top * G.rh + k * G.sa).toFixed(1), s: G.sf, color: red });
+        glyphs.push({ c: s.text[k], x: +x.toFixed(1), y: +(textTop + s.top * G.rh + k * G.sa).toFixed(1), s: G.sf, color: colorOf(s.src) });
       }
     }
   }
@@ -78,12 +81,12 @@ for (const nt of notes) {
   for (let k = 0; k < nt.chunks.length; k++) {
     const ci = nt.start + k;
     if (ci < 0) continue;
-    const R = offPx + ci * cw;
+    const R = offPx + ci * cw - shift;
     if (R > W) continue;
     const x = W - R - (cw / 2 - G.sf) / 2 - G.sf;
     const txt = nt.chunks[k];
     for (let j = 0; j < txt.length; j++) {
-      glyphs.push({ c: txt[j], x: +x.toFixed(1), y: +(TOPBAR + 8 + j * G.sa).toFixed(1), s: G.sf, color: red, note: 1 });
+      glyphs.push({ c: txt[j], x: +x.toFixed(1), y: +(TOPBAR + 8 + j * G.sa).toFixed(1), s: G.sf, color: colorOf(nt.src), note: 1 });
     }
   }
 }

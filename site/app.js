@@ -1,4 +1,4 @@
-﻿/* 脂硯齋重評石頭記 · 卷子本 —— 渲染與交互層 */
+/* 脂硯齋重評石頭記 · 卷子本 —— 渲染與交互層 */
 (() => {
   'use strict';
 
@@ -26,11 +26,15 @@
 
   const availH = () => window.innerHeight - TITLE_H - STATUS_H;
 
+  const SRC_CLASS = { '甲戌': 'jiaxu', '庚辰': 'gengchen', '蒙': 'meng', '靖': 'jing', '己卯': 'jimao' };
+  const srcKey = (s) => SRC_CLASS[s] || '其他';
+  const clsOf = (s) => SRC_CLASS[s] || 'other';
+
   function show(kind, src) {
     if (kind === '序') return true;
     if (state.notes === 'none') return false;
     if (state.notes === 'all') return true;
-    return src === state.notes;
+    return srcKey(src) === state.notes;
   }
 
   function applyVars(g) {
@@ -91,7 +95,7 @@
             out.push(`<div class="seg t" style="top:${top}px;right:${((G.cw - G.f) / 2).toFixed(1)}px">${esc(s.text)}</div>`);
           } else {
             const rr = (s.lane * (G.cw / 2) + (G.cw / 2 - G.sf) / 2).toFixed(1);
-            out.push(`<div class="seg s" title="${esc(s.meta || '')}" style="top:${top}px;right:${rr}px">${esc(s.text)}</div>`);
+            out.push(`<div class="seg s k-${clsOf(s.src)}" title="${esc(s.meta || '')}" style="top:${top}px;right:${rr}px">${esc(s.text)}</div>`);
           }
         }
       }
@@ -103,7 +107,7 @@
         const ci = n.start + k;
         if (ci < 0) continue;
         const right = (offPx + ci * G.cw + (G.cw / 2 - G.sf) / 2).toFixed(1);
-        out.push(`<div class="seg s note" title="${esc(n.src || '')}眉批" style="right:${right}px">${esc(n.chunks[k])}</div>`);
+        out.push(`<div class="seg s note k-${clsOf(n.src)}" title="${esc(n.src || '')}眉批" style="right:${right}px">${esc(n.chunks[k])}</div>`);
       }
     }
 
@@ -157,6 +161,34 @@
   const openToc = () => { $('toc').hidden = false; $('shade').hidden = false; };
   const closeToc = () => { $('toc').hidden = true; $('shade').hidden = true; };
 
+
+  /* ---------------- 批語來源圖例 ---------------- */
+  const LEGEND = [['甲戌', '甲戌本'], ['庚辰', '庚辰本'], ['蒙', '蒙府本'], ['靖', '靖本'], ['己卯', '己卯本'], ['其他', '其他']];
+  const COLORS = { '甲戌': '#a3312a', '庚辰': '#2e5c8a', '蒙': '#8a5a2f', '靖': '#6b3f7a', '己卯': '#2f6b5a', '其他': '#6b6459' };
+
+  function syncFilterUI() {
+    const label = state.notes === 'all' ? '全部' : state.notes === 'none' ? '關閉' : state.notes;
+    $('notesBtn').textContent = '批語·' + label;
+    document.querySelectorAll('#legend button').forEach((b) => {
+      b.classList.toggle('on', b.dataset.src === state.notes);
+    });
+  }
+
+  function buildLegend() {
+    const el = $('legend');
+    el.innerHTML = LEGEND.map(([k, label]) =>
+      `<button class="plaque" data-src="${k}"><i style="background:${COLORS[k]}"></i>${label}</button>`
+    ).join('');
+    el.addEventListener('click', (e) => {
+      const b = e.target.closest('button');
+      if (!b) return;
+      const s = b.dataset.src;
+      state.notes = state.notes === s ? 'all' : s;
+      syncFilterUI();
+      render(progress());
+    });
+    syncFilterUI();
+  }
   /* ---------------- 交互 ---------------- */
   function bind() {
     $('prev').onclick = () => go(state.n - 1, 0);
@@ -171,11 +203,10 @@
       $('themeBtn').textContent = state.theme === 'print' ? '影印' : '現代';
     };
 
-    const MODES = ['all', '甲戌', '庚辰', '蒙', '己卯', '靖', 'none'];
-    const modeLabel = () => state.notes === 'all' ? '全部' : state.notes === 'none' ? '關閉' : state.notes;
+    const MODES = ['all', '甲戌', '庚辰', '蒙', '靖', '己卯', '其他', 'none'];
     $('notesBtn').onclick = () => {
       state.notes = MODES[(MODES.indexOf(state.notes) + 1) % MODES.length];
-      $('notesBtn').textContent = '批語·' + modeLabel();
+      syncFilterUI();
       render(progress());
     };
 
@@ -245,6 +276,7 @@
     if (n >= 1 && n <= CHS.length) state.n = n;
     if (window.innerWidth < 720) state.f = 15;
     buildToc();
+    buildLegend();
     bind();
     render(0);
   }

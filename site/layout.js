@@ -1,4 +1,4 @@
-/* 排版内核：不碰 DOM，瀏覽器與 Node 共用
+﻿/* 排版内核：不碰 DOM，瀏覽器與 Node 共用
  * 版式單位：正文一字一格；雙行夾批每行 2 窄行；眉批走天頭。
  */
 (function (root) {
@@ -61,7 +61,7 @@
     }
 
     // lanes = 2 雙行夾批；1 單行側批
-    function emitSmall(str, lanes, meta) {
+    function emitSmall(str, lanes, meta, src) {
       let i = 0;
       while (i < str.length) {
         if (r >= G.rows) nextCol();
@@ -76,7 +76,7 @@
           const part = chunk.slice(L * per, (L + 1) * per);
           if (!part) continue;
           if (part.length > maxLen) maxLen = part.length;
-          colAt(c).segs.push({ t: 'small', top: r, lane: L, text: part, meta });
+          colAt(c).segs.push({ t: 'small', top: r, lane: L, text: part, meta, src });
         }
         r += Math.max(1, Math.ceil((maxLen * G.sa) / G.rh));
       }
@@ -90,11 +90,11 @@
         if (kind === '序') { emitText(text); continue; }
         if (show && !show(kind, src)) continue;
         const body = withLabel(text, label);
-        if (kind === '眉批') { notes.push({ col: c, text: body, src }); continue; }
+        if (kind === '眉批') { notes.push({ col: c, text: body, src, kind }); continue; }
         const meta = (src || '') + (kind === '批' ? '' : kind);
-        if (kind === '夹批') emitSmall(body, 2, meta);
-        else if (kind === '侧批') emitSmall(body, 1, meta);
-        else emitSmall(body, 2, meta);
+        if (kind === '夹批') emitSmall(body, 2, meta, src);
+        else if (kind === '侧批') emitSmall(body, 1, meta, src);
+        else emitSmall(body, 2, meta, src);
       }
     });
 
