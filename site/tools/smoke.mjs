@@ -1,4 +1,4 @@
-// 無瀏覽器環境下的冒煙測試：用最小 DOM 樁跑一遍 app.js
+﻿// 無瀏覽器環境下的冒煙測試：用最小 DOM 樁跑一遍 app.js
 import fs from 'node:fs';
 
 const ROOT = 'D:/Desktop_Env/MyBook/脂砚斋重评石头记/site';
@@ -49,6 +49,19 @@ globalThis.history = { replaceState() {} };
 globalThis.requestAnimationFrame = (f) => f();
 globalThis.setTimeout = (f) => 0;
 globalThis.clearTimeout = () => {};
+
+// 先核对 app.js 里 $('id') 引用的元素是否都真的存在于 index.html
+{
+  const idx = read('/index.html');
+  const ids = new Set([...idx.matchAll(/id="([^"]+)"/g)].map((m) => m[1]));
+  const refs = new Set([...read('/app.js').matchAll(/\$\('([^']+)'\)/g)].map((m) => m[1]));
+  const missing = [...refs].filter((r) => !ids.has(r));
+  if (missing.length) {
+    console.error('✗ app.js 引用了 index.html 中不存在的元素:', missing.join(', '));
+    process.exit(1);
+  }
+  console.log(`✓ DOM 引用检查通过（${refs.size} 个 id）`);
+}
 
 const html = read('/app.js');
 try {

@@ -1,4 +1,4 @@
-﻿/* 脂硯齋重評石頭記 · 卷子本 —— 渲染與交互層 */
+/* 脂硯齋重評石頭記 · 卷子本 —— 渲染與交互層 */
 (() => {
   'use strict';
 
@@ -176,6 +176,7 @@
 
   function buildLegend() {
     const el = $('legend');
+    if (!el) return;                 // 容器缺失時不阻斷渲染
     el.innerHTML = LEGEND.map(([k, label]) =>
       `<button class="plaque" data-src="${k}"><i style="background:${COLORS[k]}"></i>${label}</button>`
     ).join('');
