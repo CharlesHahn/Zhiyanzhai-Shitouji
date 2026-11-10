@@ -97,19 +97,106 @@ function parseLine(line, lineNo, ctx) {
 
 function pushText(runs, s) {
   if (!s) return;
-  runs.push(['x', s]);
+  // 正文里也可能漏了【】，直接夹着「庚辰双行夹批：…」这类标签，一并切出来
+  const parts = splitEmbedded(s);
+  if (!parts.some((p) => p.label)) { runs.push(['x', s]); return; }
+  for (const p of parts) {
+    if (p.label) {
+      const c = classify(p.label);
+      runs.push(['a', c.kind, c.src, p.text, p.label]);
+    } else if (p.text) {
+      runs.push(['x', p.text]);
+    }
+  }
+}
+
+// 連排的批語：OCR 把多條批語塞進同一個【】裡，只標了第一條。
+// 這裡找出行文中的「來源+類型：」標記，把後續各條切出來。
+const EMB_RE = /(甲戌|庚辰|己卯|蒙|靖|脂|戚|甲|庚|辰)\s*(回前总批|回末总批|回前总评|回末总评|双行夹批|双行夹注|侧批|眉批|夹批|夹注|前批|后批|批)\s*[：:]/g;
+
+function splitEmbedded(str) {
+  const out = [];
+  let pos = 0;
+  const re = new RegExp(EMB_RE.source, 'g');
+  let m;
+  while ((m = re.exec(str))) {
+    if (m.index > pos) out.push({ label: '', text: str.slice(pos, m.index) });
+    const start = re.lastIndex;
+    const re2 = new RegExp(EMB_RE.source, 'g');
+    re2.lastIndex = start;
+    const n2 = re2.exec(str);
+    const end = n2 ? n2.index : str.length;
+    out.push({ label: (m[1] + m[2]).replace(/\s+/g, ''), text: str.slice(start, end).trim() });
+    pos = end;
+    re.lastIndex = end;
+  }
+  if (pos < str.length) out.push({ label: '', text: str.slice(pos) });
+  return out;
+}
+
+// 手工校訂：凡例正文中夾着兩條蒙批，OCR 未加任何分隔，只能按原文逐字切分
+const KNOWN_ANNS = [
+  '蒙侧批：何非梦幻，何不通灵？作者托言，原当有自。受气清浊，本无男女之别。',
+  '蒙侧批：因为传他，并可传我。',
+];
+function splitKnown(str) {
+  const marks = KNOWN_ANNS.map((s) => ({ s, i: str.indexOf(s) }))
+    .filter((x) => x.i >= 0).sort((a, b) => a.i - b.i);
+  if (!marks.length) return null;
+  const out = [];
+  let pos = 0;
+  for (const mk of marks) {
+    if (mk.i > pos) out.push({ label: '', text: str.slice(pos, mk.i) });
+    const lab = mk.s.slice(0, mk.s.indexOf('：'));
+    out.push({ label: lab, text: mk.s.slice(mk.s.indexOf('：') + 1) });
+    pos = mk.i + mk.s.length;
+  }
+  if (pos < str.length) out.push({ label: '', text: str.slice(pos) });
+  return out;
 }
 
 function pushAnn(runs, inner, lineNo) {
   const m = inner.match(/^([^：:]{1,10})[：:]([\s\S]*)$/);
   const label = m ? m[1].trim() : '';      // 【 该 批：…】 這類前導空格先去掉
-  if (m && isLabel(label)) {
-    const { src, kind } = classify(label);
-    runs.push(['a', kind, src, m[2].trim(), label]);
-  } else {
-    // 无标签：按位置在后续处理中判定回前/回末/总批
+  const primary = (m && isLabel(label)) ? label : '';
+
+  if (primary) {
+    // 整段是批語：首段歸主標籤，其後各條按內嵌標籤切開
+    const parts = splitEmbedded(m[2]);
+    let first = m[2].trim();
+    const tail = [];
+    if (parts.length && !parts[0].label) {
+      first = parts.shift().text.trim() || first;
+    }
+    const c0 = classify(primary);
+    runs.push(['a', c0.kind, c0.src, first, primary]);
+    for (const p of parts) {
+      if (!p.label) continue;
+      const c = classify(p.label);
+      runs.push(['a', c.kind, c.src, p.text, p.label]);
+    }
+    return;
+  }
+
+  // 無主標籤：先試手工校訂表，再按內嵌標籤切出「正文 + 批語」交錯
+  const known = splitKnown(inner);
+  const parts = known || splitEmbedded(inner);
+  const hasLabel = parts.some((p) => p.label);
+
+  if (!hasLabel) {
+    // 整段無標籤：按位置在後續處理中判定回前/回末/序
     runs.push(['a', '无', '', inner.trim(), '']);
     if (inner.length > 0) warn(lineNo, '无标签批语', inner.slice(0, 30));
+    return;
+  }
+
+  for (const p of parts) {
+    if (!p.label) {
+      if (p.text) runs.push(['x', p.text]);
+      continue;
+    }
+    const c = classify(p.label);
+    runs.push(['a', c.kind, c.src, p.text, p.label]);
   }
 }
 

@@ -26,9 +26,8 @@
 
   const availH = () => window.innerHeight - TITLE_H - STATUS_H;
 
-  const SRC_CLASS = { '甲戌': 'jiaxu', '庚辰': 'gengchen', '蒙': 'meng', '靖': 'jing', '己卯': 'jimao', '待考': 'daikao' };
-  const srcKey = (s) => SRC_CLASS[s] || '其他';
-  const clsOf = (s) => SRC_CLASS[s] || 'other';
+  // 來源鍵一律用中文名，與 COLORS / 圖例 / 篩選狀態保持同一套鍵
+  const srcKey = (s) => (COLORS[s] ? s : '其他');
 
   function show(kind, src) {
     if (kind === '序') return true;
