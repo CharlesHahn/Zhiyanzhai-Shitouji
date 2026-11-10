@@ -1,4 +1,4 @@
-﻿/* 脂硯齋重評石頭記 · 卷子本 */
+/* 脂硯齋重評石頭記 · 卷子本 */
 :root{
   --f: 17px;
   --rh: 17.68px;
@@ -197,14 +197,21 @@ body[data-theme="modern"] .col::after{ display: none; }
   color: var(--ink);
 }
 
+/* 回前/回末總批：獨佔主列的紅字 */
+.seg.r{
+  font-size: var(--f);
+  letter-spacing: var(--ls);
+  opacity: .9;
+}
+
+/* 窄缝里的批注：小字单行，步进与正文行对齐 */
 .seg.s{
   font-size: var(--sf);
   letter-spacing: var(--ls-small);
-  color: var(--c-other);
   opacity: .92;
 }
 
-/* 批語按來源著色 */
+/* 批語按來源著色（內聯 color 優先；此處留作兜底） */
 .seg.s.k-jiaxu,    .seg.note.k-jiaxu   { color: var(--c-jiaxu); }
 .seg.s.k-gengchen, .seg.note.k-gengchen{ color: var(--c-gengchen); }
 .seg.s.k-meng,     .seg.note.k-meng    { color: var(--c-meng); }
@@ -219,7 +226,7 @@ body[data-theme="modern"] .col::after{ display: none; }
 /* 眉批（天頭） */
 .seg.note{
   font-size: var(--sf);
-  letter-spacing: var(--ls-small);
+  letter-spacing: var(--ls-note);
   color: var(--red);
   opacity: .78;
   top: 6px !important;

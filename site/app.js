@@ -1,4 +1,4 @@
-/* 脂硯齋重評石頭記 · 卷子本 —— 渲染與交互層 */
+﻿/* 脂硯齋重評石頭記 · 卷子本 —— 渲染與交互層 */
 (() => {
   'use strict';
 
@@ -41,11 +41,12 @@
     const s = document.documentElement.style;
     s.setProperty('--f', g.f + 'px');
     s.setProperty('--rh', g.rh + 'px');
-    s.setProperty('--cw', g.cw + 'px');
     s.setProperty('--sf', g.sf + 'px');
-    s.setProperty('--sa', g.sa + 'px');
+    s.setProperty('--gw', g.gw + 'px');
+    s.setProperty('--pitch', g.pitch + 'px');
     s.setProperty('--ls', g.ls + 'px');
     s.setProperty('--ls-small', g.lsSmall + 'px');
+    s.setProperty('--ls-note', g.lsNote + 'px');
     s.setProperty('--pad-top', g.topPad + 'px');
     s.setProperty('--pad-bottom', g.botPad + 'px');
   }
@@ -62,13 +63,15 @@
     const total = Math.max(laid.total, 1);
     const notes = L.placeNotes(laid.notes, total, G);
 
-    const f = G.f, cw = G.cw;
-    const padR = 0.35 * cw;
+    const f = G.f, pitch = G.pitch, sf = G.sf, gw = G.gw;
+    const colorOf = (src) => COLORS[srcKey(src)] || COLORS['其他'];
+    const padR = 0.35 * pitch;
     const titleR = padR;
     const volR = titleR + 2.35 * f + 0.25 * f;
     const nameR = volR + 0.88 * f + 0.25 * f;
-    const offPx = Math.round(nameR + 0.95 * f + 0.35 * cw);
+    const offPx = Math.round(nameR + 0.95 * f + 0.35 * pitch);
     const bodyH = G.bodyH;
+    const gutRight = (f + (gw - sf) / 2).toFixed(1);
     const out = [];
 
     out.push(`<div class="frame" style="top:${G.headH}px;right:${offPx}px"></div>`);
@@ -76,7 +79,7 @@
 
     out.push(
       `<div class="juan" style="width:${offPx}px">` +
-      `<div class="juan-rule" style="right:${(offPx - 0.16 * cw).toFixed(1)}px"></div>` +
+      `<div class="juan-rule" style="right:${(offPx - 0.16 * pitch).toFixed(1)}px"></div>` +
       `<div class="juan-title" style="right:${titleR.toFixed(1)}px;top:${(G.headH * 0.5).toFixed(1)}px">脂硯齋重評石頭記</div>` +
       `<div class="juan-vol" style="right:${volR.toFixed(1)}px;top:${(G.headH * 0.72).toFixed(1)}px">卷之${numCN(state.n)}</div>` +
       `<div class="juan-name" style="right:${nameR.toFixed(1)}px;top:${(G.headH * 1.2).toFixed(1)}px">${esc(ch.full)}</div>` +
@@ -85,18 +88,24 @@
 
     for (let i = 0; i < total; i++) {
       const col = laid.cols[i];
-      const right = (offPx + i * G.cw).toFixed(1);
-      out.push(`<div class="col" style="right:${right}px;top:${G.textTop}px;height:${bodyH}px">`);
-      if (state.colno) out.push(`<div class="colno" style="right:${((G.cw - G.f) / 2).toFixed(1)}px">${i + 1}</div>`);
+      const gut = laid.gutters[i];
+      const right = (offPx + i * pitch).toFixed(1);
+      out.push(`<div class="col" style="right:${right}px;top:${G.textTop}px;width:${pitch}px;height:${bodyH}px">`);
+      if (state.colno) out.push(`<div class="colno" style="right:0">${i + 1}</div>`);
       if (col) {
         for (const s of col.segs) {
           const top = (s.top * G.rh).toFixed(1);
-          if (s.t === 'text') {
-            out.push(`<div class="seg t" style="top:${top}px;right:${((G.cw - G.f) / 2).toFixed(1)}px">${esc(s.text)}</div>`);
+          if (s.red) {
+            out.push(`<div class="seg r" style="top:${top}px;right:0;color:${colorOf(s.src)}">${esc(s.text)}</div>`);
           } else {
-            const rr = (s.lane * (G.cw / 2) + (G.cw / 2 - G.sf) / 2).toFixed(1);
-            out.push(`<div class="seg s k-${clsOf(s.src)}" title="${esc(s.meta || '')}" style="top:${top}px;right:${rr}px">${esc(s.text)}</div>`);
+            out.push(`<div class="seg t" style="top:${top}px;right:0">${esc(s.text)}</div>`);
           }
+        }
+      }
+      if (gut) {
+        for (const s of gut.segs) {
+          const top = (s.top * G.rh).toFixed(1);
+          out.push(`<div class="seg s" style="top:${top}px;right:${gutRight}px;color:${colorOf(s.src)}">${esc(s.text)}</div>`);
         }
       }
       out.push('</div>');
@@ -106,12 +115,12 @@
       for (let k = 0; k < n.chunks.length; k++) {
         const ci = n.start + k;
         if (ci < 0) continue;
-        const right = (offPx + ci * G.cw + (G.cw / 2 - G.sf) / 2).toFixed(1);
-        out.push(`<div class="seg s note k-${clsOf(n.src)}" title="${esc(n.src || '')}眉批" style="right:${right}px">${esc(n.chunks[k])}</div>`);
+        const right = (offPx + ci * pitch + (gw - sf) / 2).toFixed(1);
+        out.push(`<div class="seg s note" title="${esc(n.src || '')}眉批" style="right:${right}px;color:${colorOf(n.src)}">${esc(n.chunks[k])}</div>`);
       }
     }
 
-    const stripW = offPx + total * G.cw + 36;
+    const stripW = offPx + total * pitch + 36;
     stripEl.style.width = stripW + 'px';
     stripEl.style.height = (G.footY + 14) + 'px';
     stripEl.innerHTML = out.join('');
