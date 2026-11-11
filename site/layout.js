@@ -1,4 +1,4 @@
-﻿/* 排版内核：不碰 DOM，浏览器与 Node 共用
+/* 排版内核：不碰 DOM，浏览器与 Node 共用
  *
  * 版式（对照原书样张）：
  *   主列（正文，一字一格） + 窄缝（批注，小字单行）交替排列；
@@ -51,7 +51,7 @@
     const gutterFree = {};  // 每條縫的下一空行
     let c = 0, r = 0;
 
-    const colAt = (i) => (cols[i] || (cols[i] = { segs: [] }));
+    const colAt = (i) => (cols[i] || (cols[i] = { segs: [], noteOnly: false }));
     const gutAt = (i) => (gutters[i] || (gutters[i] = { segs: [] }));
     const nextCol = () => { c++; r = 0; };
 
@@ -88,6 +88,25 @@
       if (rr > (gutterFree[g] || 0)) gutterFree[g] = rr;
     }
 
+    // 獨立成段的批語（回前/回末等）：也用同樣的小字，但獨佔一條窄列
+    function emitNoteBlock(str, src) {
+      let g = c;
+      let i = 0;
+      while (i < str.length) {
+        colAt(g).noteOnly = true;
+        const start = gutterFree[g] || 0;
+        const take = Math.min(G.rows - start, str.length - i);
+        if (take > 0) {
+          gutAt(g).segs.push({ top: start, text: str.slice(i, i + take), src });
+          gutterFree[g] = start + take;
+        }
+        i += take;
+        if (i < str.length) g++;
+        else break;
+      }
+      c = g; r = 0;   // 下一段再 nextCol() 時正好落到批語列之後
+    }
+
     ch.b.forEach((b, bi) => {
       if (bi > 0) nextCol();
       const standalone = b[0] === 'n';
@@ -99,7 +118,7 @@
         const body = withLabel(text, label);
         if (kind === '眉批') { notes.push({ col: c, text: body, src }); continue; }
         // 回前/回末等独立成段的批語：独占主列，整列红字（同原书样张）
-        if (standalone && kind !== '校记') { emitText(body, true, src); continue; }
+        if (standalone && kind !== '校记') { emitNoteBlock(body, src); continue; }
         placeNote(body, src);
       }
     });

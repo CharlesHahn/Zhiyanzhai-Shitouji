@@ -54,13 +54,23 @@ const glyphs = [];
 const rules = [];
 const colnos = [];
 
-for (let i = startCol; i < laid.total; i++) {
-  const R = offPx + i * pitch - shift;
-  if (R > W) break;
-  rules.push({ x: +(W - R).toFixed(1) });
-  colnos.push({ x: +(W - R - f2 / 2).toFixed(1), y: textTop - G.rh * 0.95, t: String(i + 1) });
-
+const colX = [];
+let cursor = offPx;
+for (let i = 0; i < laid.total; i++) {
   const col = laid.cols[i];
+  const noteOnly = !!(col && col.noteOnly && !col.segs.length);
+  colX[i] = cursor;
+  cursor += noteOnly ? gw : pitch;
+}
+
+for (let i = startCol; i < laid.total; i++) {
+  const R = colX[i] - shift;
+  if (R > W) break;
+  const col = laid.cols[i];
+  const noteOnly = !!(col && col.noteOnly && !col.segs.length);
+  rules.push({ x: +(W - R).toFixed(1) });
+  if (!noteOnly) colnos.push({ x: +(W - R - f2 / 2).toFixed(1), y: textTop - G.rh * 0.95, t: String(i + 1) });
+
   if (col) {
     for (const s of col.segs) {
       const x = W - R - f2;
@@ -72,8 +82,9 @@ for (let i = startCol; i < laid.total; i++) {
   }
   const gut = laid.gutters[i];
   if (gut) {
+    const off = noteOnly ? 0 : f2;
     for (const s of gut.segs) {
-      const x = W - R - f2 - (gw - sf) / 2 - sf;
+      const x = W - R - off - (gw - sf) / 2 - sf;
       for (let k = 0; k < s.text.length; k++) {
         glyphs.push({ c: s.text[k], x: +x.toFixed(1), y: +(textTop + s.top * G.rh + k * G.rh).toFixed(1), s: sf, color: colorOf(s.src) });
       }
@@ -85,7 +96,7 @@ for (const nt of notes) {
   for (let k = 0; k < nt.chunks.length; k++) {
     const ci = nt.start + k;
     if (ci < 0) continue;
-    const R = offPx + ci * pitch - shift;
+    const R = (colX[ci] !== undefined ? colX[ci] : cursor) - shift;
     if (R > W) continue;
     const x = W - R - (gw - sf) / 2 - sf;
     const txt = nt.chunks[k];

@@ -1,4 +1,4 @@
-// 对抗性自检：数据层 + 渲染层，任何一条不过就退出非零
+﻿// 对抗性自检：数据层 + 渲染层，任何一条不过就退出非零
 import fs from 'node:fs';
 
 const ROOT = 'D:/Desktop_Env/MyBook/脂砚斋重评石头记/site';
@@ -38,6 +38,23 @@ for (const ch of BOOK.chapters) {
 console.log(`数据层：批语 ${nAnn} 条，正文段 ${nText} 段`);
 console.log('来源分布:', srcCount);
 
+// ---- 结构检查：批注一律走窄缝，不得混进正文列 ----
+{
+  const G = L.geom({ f: 17, avail: 820 });
+  let noteOnlyWithText = 0, bodySegsInNoteCol = 0, annRuns = 0;
+  for (const ch of BOOK.chapters) {
+    const laid = L.typeset(ch, G, () => true);
+    laid.cols.forEach((col, i) => {
+      if (!col) return;
+      if (col.noteOnly && col.segs.length) noteOnlyWithText++;
+      if (col.segs.some((s) => s.red)) bodySegsInNoteCol++;
+      for (const s of col.segs) if (s.red) annRuns++;
+    });
+  }
+  ok(noteOnlyWithText === 0, `有 ${noteOnlyWithText} 条「只放批语」的窄列混入了正文`);
+  ok(bodySegsInNoteCol === 0, `有 ${bodySegsInNoteCol} 处批语被排成了正文大小`);
+  console.log('结构层：批语未混入正文列，亦无正文大小的批语');
+}
 // ---- 渲染层（第四章抽查，避免单章特殊） ----
 const COLORS = { '甲戌': '#a3312a', '庚辰': '#2e5c8a', '蒙': '#8a5a2f', '靖': '#6b3f7a', '己卯': '#2f6b5a', '待考': '#4f4a45', '其他': '#8a8578' };
 const store = new Map();

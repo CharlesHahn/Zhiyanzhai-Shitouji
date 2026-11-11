@@ -1,4 +1,4 @@
-﻿/* 脂硯齋重評石頭記 · 卷子本 —— 渲染與交互層 */
+/* 脂硯齋重評石頭記 · 卷子本 —— 渲染與交互層 */
 (() => {
   'use strict';
 
@@ -85,12 +85,18 @@
       `</div>`
     );
 
+    const colX = [];
+    let x = offPx;
     for (let i = 0; i < total; i++) {
       const col = laid.cols[i];
       const gut = laid.gutters[i];
-      const right = (offPx + i * pitch).toFixed(1);
-      out.push(`<div class="col" style="right:${right}px;top:${G.textTop}px;width:${pitch}px;height:${bodyH}px">`);
-      if (state.colno) out.push(`<div class="colno" style="right:0">${i + 1}</div>`);
+      // 只放批語的列收窄成一條窄縫，主文列仍舊是「正文 + 窄縫」
+      const noteOnly = !!(col && col.noteOnly && !col.segs.length);
+      const w = noteOnly ? gw : pitch;
+      colX[i] = x;
+      const right = x.toFixed(1);
+      out.push(`<div class="col${noteOnly ? ' nc' : ''}" style="right:${right}px;top:${G.textTop}px;width:${w}px;height:${bodyH}px">`);
+      if (state.colno && !noteOnly) out.push(`<div class="colno" style="right:0">${i + 1}</div>`);
       if (col) {
         for (const s of col.segs) {
           const top = (s.top * G.rh).toFixed(1);
@@ -102,24 +108,27 @@
         }
       }
       if (gut) {
+        const gr = noteOnly ? ((gw - sf) / 2).toFixed(1) : gutRight;
         for (const s of gut.segs) {
           const top = (s.top * G.rh).toFixed(1);
-          out.push(`<div class="seg s" style="top:${top}px;right:${gutRight}px;color:${colorOf(s.src)}">${esc(s.text)}</div>`);
+          out.push(`<div class="seg s" style="top:${top}px;right:${gr}px;color:${colorOf(s.src)}">${esc(s.text)}</div>`);
         }
       }
       out.push('</div>');
+      x += w;
     }
 
     for (const n of notes) {
       for (let k = 0; k < n.chunks.length; k++) {
         const ci = n.start + k;
         if (ci < 0) continue;
-        const right = (offPx + ci * pitch + (gw - sf) / 2).toFixed(1);
+        const base = colX[ci] !== undefined ? colX[ci] : x;
+        const right = (base + (gw - sf) / 2).toFixed(1);
         out.push(`<div class="seg s note" title="${esc(n.src || '')}眉批" style="right:${right}px;color:${colorOf(n.src)}">${esc(n.chunks[k])}</div>`);
       }
     }
 
-    const stripW = offPx + total * pitch + 36;
+    const stripW = x + 36;
     stripEl.style.width = stripW + 'px';
     stripEl.style.height = (G.footY + 14) + 'px';
     stripEl.innerHTML = out.join('');
